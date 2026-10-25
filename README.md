@@ -1,27 +1,24 @@
-# Eva Dock
+# EvaDock
 
-Aplicación independiente de mascota para escritorio de Windows.
+Mascota independiente de Eva para el escritorio de Windows, con ventana flotante transparente y actualizaciones desde este repositorio.
 
-## Versión 0.10.1 — reparación de transparencia
+## Versión publicada 0.10.2 — imagen sentada corregida
 
-- Corrige la llamada Win32 a `UpdateLayeredWindow`: ahora recibe un puntero válido a `BLENDFUNCTION`, que era el motivo del fallo que activaba la ventana alternativa con rectángulo beige.
-- Se conserva la pose individual de 0.10.0 sin sustituir imágenes ni introducir poses no aprobadas.
-- El ejecutable instalado en `%LOCALAPPDATA%\EvaDock\EvaDock.exe` conserva el mismo nombre y comprueba actualizaciones desde Releases de este repositorio; no hace falta descargar manualmente cada versión.
-- Compilación y prueba unitaria verificadas. La transparencia en una PC Windows sigue pendiente de confirmación visual.
+- **Imagen sentada:** se sustituyó el archivo antiguo de 0.10.0/0.10.1 (cola excesivamente esponjada, expresión y proporciones rechazadas) por la imagen individual elegida el 25 de octubre: `Eva, gata carey de pecho blanco.png`. Está integrada exactamente, sin recortes ni regeneración, como `assets/independientes/sentada.png`.
+- **Transparencia:** se mantiene la corrección de `UpdateLayeredWindow` de 0.10.1 que el usuario confirmó que ya funciona.
+- **Programa:** siguen disponibles los mismos controles y ventana flotante; esta actualización visual no mezcla las otras poses que todavía requieren revisión.
+- **Permanencia:** el ejecutable conserva el nombre `EvaDock.exe`. La copia instalada en `%LOCALAPPDATA%\EvaDock\EvaDock.exe` busca nuevas versiones en [GitHub Releases](https://github.com/youteachtk/EvaDock/releases) sin que sea necesario descargar manualmente un nuevo instalador por versión.
 
-## Comportamiento heredado de 0.10.0
+## Decisiones y materiales de referencia
 
-- La vista previa y la ventana flotante usan una imagen **independiente** de Eva, procedente del retrato individual aprobado. No se extraen poses de una hoja colectiva.
-- Los archivos originales anteriores en la PC no se sobreescriben.
-- La ventana flotante se coloca junto al panel, con botón para traerla al frente.
-- Si Windows rechaza el dibujo transparente (UpdateLayeredWindow), se abre una ventana visible alternativa para diagnóstico.
-- Se omiten las cinco poses anteriores de mala calidad hasta disponer de imágenes individuales apropiadas.
-- Actualizaciones automáticas exclusivamente desde https://github.com/youteachtk/EvaDock/releases.
+El registro de decisiones de diseño, las poses aprobadas o pendientes y los identificadores de los recursos se encuentran en [docs/DECISIONES_EVA.md](docs/DECISIONES_EVA.md). Es la referencia permanente antes de modificar el diseño o solicitar nuevas fotografías.
 
-## Limitaciones actuales
+Las imágenes de trabajo adicionales `recostada.png` y `dormida.png` están conservadas en la rama `eva-poses-independientes-v011`, para revisión; no se publicaron automáticamente en esta versión. Las fotografías de referencia originales no se divulgan en el repositorio público.
 
-La ventana alternativa tiene un fondo visible; la mascota sólo permanece sin fondo si Windows soporta la ventana transparente. La versión 0.10 no tiene movimientos corporales reales ni las otras cinco poses. Compilada para Windows 64-bit pero necesita validación visual en una máquina Windows.
+## Funcionamiento y limitaciones
 
-## Compilación
+La versión 0.10.2 presenta una sola pose de Eva sentada. Los movimientos de la cola y las otras posiciones se preparan en la rama 0.11 y dependen de validación visual. La comprobación de nuevas versiones se realiza al abrir la copia instalada y aproximadamente cada ocho horas; la sustitución se efectúa al cerrar/reabrir conforme al flujo del programa.
 
-`GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -tags eva_assets -ldflags="-H=windowsgui -s -w -X main.version=0.10.1" -o EvaDock.exe .`
+La compilación se genera automáticamente en GitHub Actions para Windows 64 bits con:
+
+`GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -tags eva_assets -ldflags="-H=windowsgui -s -w -X main.version=0.10.2" -o EvaDock.exe .`
