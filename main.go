@@ -1,15 +1,12 @@
-// Eva Dock v0.10 — Aplicacion nativa de Windows, con recurso independiente.
+// Eva Dock — Aplicacion nativa de Windows, con poses independientes.
 // Controles HWND BUTTON (WM_COMMAND/BN_CLICKED), vista previa y mascota flotante.
 // Recurso independiente de Eva; conserva los PNG anteriores solo como respaldo local.
 // No usa red, cuentas, servicios de terceros ni modelos IA.
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"image"
-	"image/draw"
-	"image/png"
 	"math"
 	"os"
 	"path/filepath"
@@ -17,6 +14,8 @@ import (
 	"syscall"
 	"time"
 	"unsafe"
+
+	"github.com/youteachtk/EvaDock/internal/posecatalog"
 )
 
 const (
@@ -51,18 +50,14 @@ const (
 	ulwAlpha           = 2
 	srccopy            = 0x00CC0020
 	idShow             = 201
-	idNext             = 202
-	idSit              = 203
-	idStand            = 204
-	idWalk             = 205
-	idLie              = 206
-	idSleep            = 207
-	idJump             = 208
-	idAuto             = 209
-	idSmaller          = 210
-	idBigger           = 211
-	idBring            = 212
-	idExit             = 213
+	idSit              = 202
+	idLie              = 203
+	idSleep            = 204
+	idAuto             = 205
+	idSmaller          = 206
+	idBigger           = 207
+	idBring            = 208
+	idExit             = 209
 	panelW             = 745
 	panelH             = 490
 	previewW           = 322
@@ -121,67 +116,66 @@ type bitmapInfo struct {
 	H      bitmapHeader
 	Colors [1]uint32
 }
-type pose struct {
-	name, file string
-	img        *image.NRGBA
-}
 
 var (
-	u32                             = syscall.NewLazyDLL("user32.dll")
-	gdi                             = syscall.NewLazyDLL("gdi32.dll")
-	kern                            = syscall.NewLazyDLL("kernel32.dll")
-	pReg                            = u32.NewProc("RegisterClassExW")
-	pCreate                         = u32.NewProc("CreateWindowExW")
-	pDef                            = u32.NewProc("DefWindowProcW")
-	pShow                           = u32.NewProc("ShowWindow")
-	pEnable                         = u32.NewProc("EnableWindow")
-	pDestroy                        = u32.NewProc("DestroyWindow")
-	pGetMsg                         = u32.NewProc("GetMessageW")
-	pTranslate                      = u32.NewProc("TranslateMessage")
-	pDispatch                       = u32.NewProc("DispatchMessageW")
-	pQuit                           = u32.NewProc("PostQuitMessage")
-	pSetText                        = u32.NewProc("SetWindowTextW")
-	pSetTimer                       = u32.NewProc("SetTimer")
-	pGetSystem                      = u32.NewProc("GetSystemMetrics")
-	pSetPos                         = u32.NewProc("SetWindowPos")
-	pGetCursor                      = u32.NewProc("GetCursorPos")
-	pCapture                        = u32.NewProc("SetCapture")
-	pReleaseCapture                 = u32.NewProc("ReleaseCapture")
-	pBeginPaint                     = u32.NewProc("BeginPaint")
-	pEndPaint                       = u32.NewProc("EndPaint")
-	pInvalidate                     = u32.NewProc("InvalidateRect")
-	pGetDC                          = u32.NewProc("GetDC")
-	pReleaseDC                      = u32.NewProc("ReleaseDC")
-	pUpdate                         = u32.NewProc("UpdateLayeredWindow")
-	pCreateMem                      = gdi.NewProc("CreateCompatibleDC")
-	pDeleteDC                       = gdi.NewProc("DeleteDC")
-	pCreateDIB                      = gdi.NewProc("CreateDIBSection")
-	pSelect                         = gdi.NewProc("SelectObject")
-	pDelete                         = gdi.NewProc("DeleteObject")
-	pStretch                        = gdi.NewProc("StretchDIBits")
-	pModule                         = kern.NewProc("GetModuleHandleW")
-	pMessageBox                     = u32.NewProc("MessageBoxW")
-	pPostMessage                    = u32.NewProc("PostMessageW")
-	pIsWindow                       = u32.NewProc("IsWindow")
-	pForeground                     = u32.NewProc("SetForegroundWindow")
-	poseList                        []pose
-	active                          int
-	panel, pet, statusH, showButton uintptr
-	petX, petY                      int32
-	petW                            = 340
-	petH                            = 310
-	visible                         = true
-	automatic                       = false
-	petFallback                     = false
-	dragging                        bool
-	downPt                          point
-	downX, downY                    int32
-	dragged                         bool
-	actionCount                     int
-	lastAuto                        = time.Now()
-	lastWalk                        = time.Now()
-	logFile                         string
-	instance                        uintptr
+	u32                                         = syscall.NewLazyDLL("user32.dll")
+	gdi                                         = syscall.NewLazyDLL("gdi32.dll")
+	kern                                        = syscall.NewLazyDLL("kernel32.dll")
+	pReg                                        = u32.NewProc("RegisterClassExW")
+	pCreate                                     = u32.NewProc("CreateWindowExW")
+	pDef                                        = u32.NewProc("DefWindowProcW")
+	pShow                                       = u32.NewProc("ShowWindow")
+	pEnable                                     = u32.NewProc("EnableWindow")
+	pDestroy                                    = u32.NewProc("DestroyWindow")
+	pGetMsg                                     = u32.NewProc("GetMessageW")
+	pTranslate                                  = u32.NewProc("TranslateMessage")
+	pDispatch                                   = u32.NewProc("DispatchMessageW")
+	pQuit                                       = u32.NewProc("PostQuitMessage")
+	pSetText                                    = u32.NewProc("SetWindowTextW")
+	pSetTimer                                   = u32.NewProc("SetTimer")
+	pGetSystem                                  = u32.NewProc("GetSystemMetrics")
+	pSetPos                                     = u32.NewProc("SetWindowPos")
+	pGetCursor                                  = u32.NewProc("GetCursorPos")
+	pCapture                                    = u32.NewProc("SetCapture")
+	pReleaseCapture                             = u32.NewProc("ReleaseCapture")
+	pBeginPaint                                 = u32.NewProc("BeginPaint")
+	pEndPaint                                   = u32.NewProc("EndPaint")
+	pInvalidate                                 = u32.NewProc("InvalidateRect")
+	pGetDC                                      = u32.NewProc("GetDC")
+	pReleaseDC                                  = u32.NewProc("ReleaseDC")
+	pUpdate                                     = u32.NewProc("UpdateLayeredWindow")
+	pCreateMem                                  = gdi.NewProc("CreateCompatibleDC")
+	pDeleteDC                                   = gdi.NewProc("DeleteDC")
+	pCreateDIB                                  = gdi.NewProc("CreateDIBSection")
+	pSelect                                     = gdi.NewProc("SelectObject")
+	pDelete                                     = gdi.NewProc("DeleteObject")
+	pStretch                                    = gdi.NewProc("StretchDIBits")
+	pModule                                     = kern.NewProc("GetModuleHandleW")
+	pMessageBox                                 = u32.NewProc("MessageBoxW")
+	pPostMessage                                = u32.NewProc("PostMessageW")
+	pIsWindow                                   = u32.NewProc("IsWindow")
+	pForeground                                 = u32.NewProc("SetForegroundWindow")
+	poseList                                    []posecatalog.Pose
+	active                                      int
+	recostadaTailUp                             *image.NRGBA
+	tailRaised                                  bool
+	poseSince                                   = time.Now()
+	panel, pet, statusH, showButton, autoButton uintptr
+	petX, petY                                  int32
+	petW                                        = 340
+	petH                                        = 310
+	visible                                     = true
+	automatic                                   = false
+	petFallback                                 = false
+	dragging                                    bool
+	downPt                                      point
+	downX, downY                                int32
+	dragged                                     bool
+	actionCount                                 int
+	lastAuto                                    = time.Now()
+	lastWalk                                    = time.Now()
+	logFile                                     string
+	instance                                    uintptr
 )
 
 func u(s string) *uint16   { return syscall.StringToUTF16Ptr(s) }
@@ -198,21 +192,21 @@ func logErr(s string) {
 func n32(x int32) uintptr { return uintptr(int64(x)) }
 func posByCursor() point  { p := point{}; pGetCursor.Call(uintptr(unsafe.Pointer(&p))); return p }
 func decode() error {
-	// Este recurso procede de una imagen independiente que fue aprobada antes,
-	// NO se corta de la hoja de seis poses. Los PNG antiguos nunca se sobrescriben.
-	data, err := bundledAsset("independientes/sentada.png")
-	if err != nil || len(data) == 0 {
-		return fmt.Errorf("Imagen independiente de Eva no incluida: %v", err)
-	}
-	img, err := png.Decode(bytes.NewReader(data))
+	poses, err := posecatalog.Load(bundledAsset)
 	if err != nil {
 		return err
 	}
-	bounds := img.Bounds()
-	n := image.NewNRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))
-	draw.Draw(n, n.Bounds(), img, bounds.Min, draw.Src)
-	poseList = []pose{{"Sentada (imagen independiente)", "independientes/sentada.png", n}}
+	poseList = poses
+	recostadaTailUp = posecatalog.TailTwitch(poseList[1].Image, 24)
+	poseSince = time.Now()
 	return nil
+}
+
+func poseImage() *image.NRGBA {
+	if active == 1 && tailRaised && recostadaTailUp != nil {
+		return recostadaTailUp
+	}
+	return poseList[active].Image
 }
 
 func class(name string, proc uintptr, style uint32) error {
@@ -234,22 +228,23 @@ func setupPanel() {
 	child("STATIC", "EVA DOCK v"+version+"  |  Mascota de escritorio", 16, 15, 700, 30, 0)
 	child("STATIC", "Eva debe verse en una ventana flotante fuera de este panel.", 16, 45, 700, 24, 0)
 	showButton = child("BUTTON", "Ocultar a Eva", 16, 80, 171, 34, idShow)
-	child("BUTTON", "Mostrar JUNTO al panel", 196, 80, 171, 34, idNext)
-	child("BUTTON", "Eva sentada", 16, 122, 171, 34, idSit)
-	child("BUTTON", "Traer Eva al frente", 196, 122, 171, 34, idBring)
-	child("BUTTON", "Tamano -", 16, 164, 171, 34, idSmaller)
-	child("BUTTON", "Tamano +", 196, 164, 171, 34, idBigger)
-	child("STATIC", "Otras poses: se sustituiran por imagenes independientes.", 16, 218, 365, 47, 0)
-	child("STATIC", "No se usaran los recortes de la hoja anterior.", 16, 263, 365, 30, 0)
+	child("BUTTON", "Traer Eva al frente", 196, 80, 171, 34, idBring)
+	child("BUTTON", "Sentada", 16, 122, 171, 34, idSit)
+	child("BUTTON", "Recostada", 196, 122, 171, 34, idLie)
+	child("BUTTON", "Dormida", 16, 164, 171, 34, idSleep)
+	autoButton = child("BUTTON", "Rutina automatica: NO", 196, 164, 171, 34, idAuto)
+	child("BUTTON", "Tamano -", 16, 206, 171, 34, idSmaller)
+	child("BUTTON", "Tamano +", 196, 206, 171, 34, idBigger)
+	child("STATIC", "De pie, caminando y salto: pendientes de nuevas fotos.", 16, 261, 365, 47, 0)
 	child("BUTTON", "Cerrar Eva Dock", 16, 326, 351, 38, idExit)
 	child("STATIC", "VISTA PREVIA - imagen independiente", 405, 80, 325, 23, 0)
 	statusH = child("STATIC", "Estado: iniciando...", 16, 385, 711, 55, 0)
-	child("STATIC", "Arrastra a Eva para moverla. Tambien puedes usar Traer Eva al frente.", 16, 446, 707, 20, 0)
+	child("STATIC", "Arrastra a Eva para moverla. Las tres poses son independientes.", 16, 446, 707, 20, 0)
 }
 
 func setStatus(action string) {
 	actionCount++
-	msg := fmt.Sprintf("Accion %d: %s. Pose: %s. En escritorio: %v.", actionCount, action, poseList[active].name, visible)
+	msg := fmt.Sprintf("Accion %d: %s. Pose: %s. En escritorio: %v.", actionCount, action, poseList[active].Name, visible)
 	if statusH != 0 {
 		pSetText.Call(statusH, ptr(msg))
 	}
@@ -266,6 +261,8 @@ func changePose(to int, action string) {
 		return
 	}
 	active = to
+	tailRaised = false
+	poseSince = time.Now()
 	lastAuto = time.Now()
 	drawPet()
 	repaintPreview()
@@ -317,7 +314,7 @@ func act(id int) {
 	switch id {
 	case idShow:
 		showPet(!visible)
-	case idNext, idBring:
+	case idBring:
 		showPet(true)
 		sw, _, _ := pGetSystem.Call(0)
 		x := int32(845)
@@ -333,6 +330,19 @@ func act(id int) {
 		setStatus("Eva colocada a la vista, al frente")
 	case idSit:
 		changePose(0, "Eva sentada")
+	case idLie:
+		changePose(1, "Eva recostada")
+	case idSleep:
+		changePose(2, "Eva dormida")
+	case idAuto:
+		automatic = !automatic
+		lastAuto = time.Now()
+		if automatic {
+			pSetText.Call(autoButton, ptr("Rutina automatica: SI"))
+		} else {
+			pSetText.Call(autoButton, ptr("Rutina automatica: NO"))
+		}
+		setStatus("Rutina automatica cambiada")
 	case idSmaller:
 		resizePet(-42)
 	case idBigger:
@@ -436,7 +446,7 @@ func drawPet() bool {
 		pInvalidate.Call(pet, 0, 1)
 		return true
 	}
-	buf := composeCanvas(petW, petH, poseList[active].img, true)
+	buf := composeCanvas(petW, petH, poseImage(), true)
 	info := bitmapInfo{H: bitmapHeader{Size: 40, Width: int32(petW), Height: -int32(petH), Planes: 1, BitCount: 32}}
 	screenDC, _, _ := pGetDC.Call(0)
 	if screenDC == 0 {
@@ -483,7 +493,7 @@ func paintPetRegular(h uintptr) {
 	if len(poseList) == 0 {
 		return
 	}
-	buf := composeCanvas(petW, petH, poseList[active].img, false)
+	buf := composeCanvas(petW, petH, poseImage(), false)
 	info := bitmapInfo{H: bitmapHeader{Size: 40, Width: int32(petW), Height: -int32(petH), Planes: 1, BitCount: 32}}
 	pStretch.Call(hdc, 0, 0, uintptr(petW), uintptr(petH), 0, 0, uintptr(petW), uintptr(petH), uintptr(unsafe.Pointer(&buf[0])), uintptr(unsafe.Pointer(&info)), 0, srccopy)
 	runtime.KeepAlive(buf)
@@ -498,7 +508,7 @@ func paintPanel(h uintptr) {
 	if len(poseList) == 0 {
 		return
 	}
-	buf := composeCanvas(previewW, previewH, poseList[active].img, false)
+	buf := composeCanvas(previewW, previewH, poseImage(), false)
 	info := bitmapInfo{H: bitmapHeader{Size: 40, Width: previewW, Height: -previewH, Planes: 1, BitCount: 32}}
 	pStretch.Call(hdc, 405, 105, previewW, previewH, 0, 0, previewW, previewH, uintptr(unsafe.Pointer(&buf[0])), uintptr(unsafe.Pointer(&info)), 0, srccopy)
 	runtime.KeepAlive(buf)
@@ -525,20 +535,17 @@ func panelProc(h uintptr, m uint32, w, l uintptr) uintptr {
 		paintPanel(h)
 		return 0
 	case wmTimer:
-		if w == 1 && automatic && len(poseList) > 0 {
-			if active == 2 && time.Since(lastWalk) > 80*time.Millisecond && visible {
-				sw, _, _ := pGetSystem.Call(0)
-				lastWalk = time.Now()
-				if petX+int32(petW) < int32(sw)-8 {
-					movePet(petX+2, petY)
-				} else {
-					movePet(20, petY)
+		if w == 1 {
+			if active == 1 && visible {
+				next := posecatalog.TailShouldTwitch(time.Since(poseSince))
+				if next != tailRaised {
+					tailRaised = next
+					drawPet()
+					repaintPreview()
 				}
 			}
-			if time.Since(lastAuto) > 9*time.Second {
-				next := []int{0, 1, 2, 3, 4, 0, 2, 0}
-				ind := int(time.Now().Unix()/9) % len(next)
-				changePose(next[ind], "Rutina automatica")
+			if automatic && len(poseList) > 0 && time.Since(lastAuto) > 12*time.Second {
+				changePose(posecatalog.AutomaticIndex(active+1), "Rutina automatica")
 			}
 		}
 		return 0
