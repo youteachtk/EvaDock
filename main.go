@@ -17,6 +17,8 @@ import (
 	"syscall"
 	"time"
 	"unsafe"
+
+	"github.com/youteachtk/EvaDock/internal/win32alpha"
 )
 
 const (
@@ -462,8 +464,10 @@ func drawPet() bool {
 	p := point{petX, petY}
 	size := siz{int32(petW), int32(petH)}
 	orig := point{}
-	// BLENDFUNCTION = (BlendOp=0, BlendFlags=0, SourceConstantAlpha=255, AlphaFormat=1).
-	ok, _, e := pUpdate.Call(pet, screenDC, uintptr(unsafe.Pointer(&p)), uintptr(unsafe.Pointer(&size)), mem, uintptr(unsafe.Pointer(&orig)), 0, 0x01ff0000, ulwAlpha)
+	// UpdateLayeredWindow expects a pointer to BLENDFUNCTION, not packed bytes.
+	blend := win32alpha.PremultipliedAlphaBlend()
+	ok, _, e := pUpdate.Call(pet, screenDC, uintptr(unsafe.Pointer(&p)), uintptr(unsafe.Pointer(&size)), mem, uintptr(unsafe.Pointer(&orig)), 0, uintptr(unsafe.Pointer(&blend)), ulwAlpha)
+	runtime.KeepAlive(&blend)
 	if ok == 0 {
 		logErr("UpdateLayeredWindow error: " + e.Error())
 	}
