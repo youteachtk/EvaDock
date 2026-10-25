@@ -1,19 +1,20 @@
 # Eva Dock
 
-Aplicación independiente para Windows que muestra a Eva, con seis poses aprobadas, sobre el escritorio.
+Aplicación independiente de mascota para escritorio de Windows.
 
-## Estado actual
-- Versión 0.9.0 preparada: ventana transparente, panel de control, seis poses y controles locales.
-- El sistema de actualización consulta exclusivamente este repositorio: `youteachtk/EvaDock`.
-- Las imágenes de Eva que se publican son solo los recortes generados y aprobados; no se publican las fotografías familiares originales.
-- Limitación: las poses actuales son estáticas; el movimiento corporal fotorrealista aún no está implementado.
+## Versión 0.10.0
 
-## Instalación y actualización
-Se publicará `EvaDock.exe` en GitHub Releases con su comprobación SHA-256. Tras instalarlo una vez, la aplicación comprobará actualizaciones en este mismo repositorio. Conserva los archivos locales de Eva y la configuración al actualizar.
+- La vista previa y la ventana flotante usan una imagen **independiente** de Eva, procedente del retrato individual aprobado. No se extraen poses de una hoja colectiva.
+- Los archivos originales anteriores en la PC no se sobreescriben.
+- La ventana flotante se coloca junto al panel, con botón para traerla al frente.
+- Si Windows rechaza el dibujo transparente (UpdateLayeredWindow), se abre una ventana visible alternativa para diagnóstico.
+- Se omiten las cinco poses anteriores de mala calidad hasta disponer de imágenes individuales apropiadas.
+- Actualizaciones automáticas exclusivamente desde https://github.com/youteachtk/EvaDock/releases.
 
-## Compilación (Go 1.22+)
-```sh
-GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -tags eva_assets -ldflags="-H=windowsgui -s -w -X main.version=0.9.0" -o EvaDock.exe .
-```
+## Limitaciones actuales
 
-La compilación en Linux no sustituye las pruebas en Windows real.
+La ventana alternativa tiene un fondo visible; la mascota sólo permanece sin fondo si Windows soporta la ventana transparente. La versión 0.10 no tiene movimientos corporales reales ni las otras cinco poses. Compilada para Windows 64-bit pero necesita validación visual en una máquina Windows.
+
+## Compilación
+
+`GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -tags eva_assets -ldflags="-H=windowsgui -s -w -X main.version=0.10.0" -o EvaDock.exe .`
