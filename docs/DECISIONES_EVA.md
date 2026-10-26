@@ -31,6 +31,8 @@ Actualizado: 2026-10-25. Se conservan los cambios y antecedentes en GitHub; cons
 
 ## Instalación y conservación
 
+- **Herramienta descartada:** Kling AI (imagen a video) ya fue probado para EvaDock y el usuario confirmó que no sirve para el resultado requerido. No volver a proponer Kling como solución ni repetir la prueba.
+
 - **Restricción confirmada el 2026-10-26:** CreativeClaw tiene los créditos agotados. No proponer ni usar CreativeClaw para animaciones de EvaDock hasta que el usuario confirme que tiene saldo y autorice su uso. Tampoco utilizar HeyGen en EvaDock.
 
 - Una sola instalación permanente, `%LOCALAPPDATA%\EvaDock\EvaDock.exe`, con actualizaciones desde los Releases de `youteachtk/EvaDock`. No exigir descargar un nuevo .exe por cada versión.
