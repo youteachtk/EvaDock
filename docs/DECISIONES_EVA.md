@@ -31,6 +31,8 @@ Actualizado: 2026-10-25. Se conservan los cambios y antecedentes en GitHub; cons
 
 ## Instalación y conservación
 
+- **Restricción confirmada el 2026-10-26:** CreativeClaw tiene los créditos agotados. No proponer ni usar CreativeClaw para animaciones de EvaDock hasta que el usuario confirme que tiene saldo y autorice su uso. Tampoco utilizar HeyGen en EvaDock.
+
 - Una sola instalación permanente, `%LOCALAPPDATA%\EvaDock\EvaDock.exe`, con actualizaciones desde los Releases de `youteachtk/EvaDock`. No exigir descargar un nuevo .exe por cada versión.
 - La imagen de la versión 0.10.2 se publica usando su objeto Git existente, no una imagen distinta regenerada.
 - Conservar la ventana transparente que ya funciona y una forma de cerrar limpiamente desde la bandeja/programa.
