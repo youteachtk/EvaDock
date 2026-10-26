@@ -1,0 +1,30 @@
+name: EvaDock - Restaurar pose acurrucada
+on:
+  push:
+    branches: [eva-poses-independientes-v011]
+    paths:
+      - 'assets/.incoming/acurrucada/**'
+      - '.github/workflows/restore-curled-png.yml'
+permissions:
+  contents: write
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restaurar bytes PNG de la pose acurrucada
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat assets/.incoming/acurrucada/part-*.bin > assets/independientes/pose_acurrucada_aprobada.png
+          printf '%s  %s\n' '083264e6997024c5c9837a17ea08af102f1503116dd5cb181abb24881f5e25b4' 'assets/independientes/pose_acurrucada_aprobada.png' | sha256sum --check -
+      - name: Conservar PNG aprobado y quitar partes temporales
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/independientes/pose_acurrucada_aprobada.png
+          git rm assets/.incoming/acurrucada/part-*.bin
+          git commit -m 'Preservar pose acurrucada aprobada sin modificaciones'
+          git push origin HEAD:eva-poses-independientes-v011
