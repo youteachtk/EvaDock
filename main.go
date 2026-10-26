@@ -231,10 +231,10 @@ func setupPanel() {
 	child("BUTTON", "Mostrar JUNTO al panel", 196, 80, 171, 34, idNext)
 	child("BUTTON", "Eva sentada", 16, 122, 171, 34, idSit)
 	child("BUTTON", "Eva horizontal", 196, 122, 171, 34, idLie)
-	child("BUTTON", "Tamano -", 16, 164, 171, 34, idSmaller)
-	child("BUTTON", "Tamano +", 196, 164, 171, 34, idBigger)
-	child("STATIC", "Dos poses independientes. La horizontal mantiene la cabeza de espaldas.", 16, 218, 365, 47, 0)
-	child("STATIC", "No se usaran los recortes de la hoja anterior.", 16, 263, 365, 30, 0)
+	child("BUTTON", "Eva acurrucada", 16, 164, 171, 34, idSleep)
+	child("BUTTON", "Tamano -", 196, 164, 171, 34, idSmaller)
+	child("BUTTON", "Tamano +", 16, 206, 171, 34, idBigger)
+	child("STATIC", "Tres poses independientes aprobadas, sin recortes de una hoja.", 16, 254, 365, 47, 0)
 	child("BUTTON", "Cerrar Eva Dock", 16, 326, 351, 38, idExit)
 	child("STATIC", "VISTA PREVIA - imagen independiente", 405, 80, 325, 23, 0)
 	statusH = child("STATIC", "Estado: iniciando...", 16, 385, 711, 55, 0)
@@ -328,7 +328,9 @@ func act(id int) {
 	case idSit:
 		changePose(0, "Eva sentada")
 	case idLie:
-		changePose(1, "Eva horizontal")
+		changePose(2, "Eva horizontal")
+	case idSleep:
+		changePose(1, "Eva acurrucada")
 	case idSmaller:
 		resizePet(-42)
 	case idBigger:

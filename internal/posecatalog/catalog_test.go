@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func TestLoadIncludesApprovedHorizontalPoseWithoutChangingTransparency(t *testing.T) {
+func TestLoadIncludesAllApprovedPosesWithoutChangingTransparency(t *testing.T) {
 	img := image.NewNRGBA(image.Rect(0, 0, 2, 1))
 	img.SetNRGBA(0, 0, color.NRGBA{R: 120, G: 55, B: 20, A: 75})
 	img.SetNRGBA(1, 0, color.NRGBA{R: 30, G: 40, B: 50, A: 255})
@@ -28,18 +28,37 @@ func TestLoadIncludesApprovedHorizontalPoseWithoutChangingTransparency(t *testin
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(poses) != 2 {
-		t.Fatalf("expected sitting and approved horizontal poses, got %d", len(poses))
+	if len(poses) != 3 {
+		t.Fatalf("expected sitting, curled and horizontal poses, got %d", len(poses))
 	}
-	if poses[0].File != "independientes/sentada.png" || poses[1].File != "independientes/pose_horizontal_aprobada.png" {
-		t.Fatalf("wrong image files: %q, %q", poses[0].File, poses[1].File)
+	if poses[0].File != "independientes/sentada.png" || poses[1].File != "independientes/pose_acurrucada_aprobada.png" || poses[2].File != "independientes/pose_horizontal_aprobada.png" {
+		t.Fatalf("wrong approved image files: %#v", requested)
 	}
-	if len(requested) != 2 || requested[1] != poses[1].File {
-		t.Fatalf("horizontal image was not loaded from approved file: %#v", requested)
+	if len(requested) != 3 || requested[1] != poses[1].File || requested[2] != poses[2].File {
+		t.Fatalf("approved images were not loaded: %#v", requested)
 	}
-	got := poses[1].Image.NRGBAAt(0, 0)
+	got := poses[2].Image.NRGBAAt(0, 0)
 	if got != (color.NRGBA{R: 120, G: 55, B: 20, A: 75}) {
 		t.Fatalf("transparency or colors changed: %#v", got)
+	}
+}
+
+func TestApprovedCurledPNGMatchesOriginalBytes(t *testing.T) {
+	data, err := os.ReadFile("../../assets/independientes/pose_acurrucada_aprobada.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+	sum := sha256.Sum256(data)
+	const want = "083264e6997024c5c9837a17ea08af102f1503116dd5cb181abb24881f5e25b4"
+	if got := hex.EncodeToString(sum[:]); got != want {
+		t.Fatalf("approved curled PNG bytes changed: %s", got)
+	}
+	decoded, err := png.Decode(bytes.NewReader(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if decoded.Bounds().Dx() != 1677 || decoded.Bounds().Dy() != 938 {
+		t.Fatalf("unexpected curled image dimensions: %v", decoded.Bounds())
 	}
 }
 

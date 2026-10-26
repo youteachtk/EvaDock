@@ -17,6 +17,7 @@ type Pose struct {
 func Load(asset func(string) ([]byte, error)) ([]Pose, error) {
 	files := []struct{ name, path string }{
 		{"Sentada", "independientes/sentada.png"},
+		{"Acurrucada", "independientes/pose_acurrucada_aprobada.png"},
 		{"Horizontal", "independientes/pose_horizontal_aprobada.png"},
 	}
 	poses := make([]Pose, 0, len(files))

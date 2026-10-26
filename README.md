@@ -2,12 +2,13 @@
 
 Mascota independiente de Eva para el escritorio de Windows, con ventana flotante transparente y actualizaciones desde este repositorio.
 
-## Versión 0.10.3 — Eva sentada y pose horizontal aprobada
+## Versión 0.10.4 — tres poses aprobadas de Eva
 
 - **Imagen sentada:** se sustituyó el archivo antiguo de 0.10.0/0.10.1 (cola excesivamente esponjada, expresión y proporciones rechazadas) por la imagen individual elegida el 25 de octubre: `Eva, gata carey de pecho blanco.png`. Está integrada exactamente, sin recortes ni regeneración, como `assets/independientes/sentada.png`.
 - **Imagen horizontal:** se incorpora exactamente el PNG aprobado después de enderezar el cuerpo, manteniendo la cabeza de espaldas, como `assets/independientes/pose_horizontal_aprobada.png` (SHA-256 `72391725920009d6234574fbbbcde9a37fc38fb79b4cbd6d03af51a5a503d044`). Un botón independiente permite seleccionar esta pose.
+- **Imagen acurrucada:** se incorpora el PNG individual solicitado junto con la pose horizontal, como `assets/independientes/pose_acurrucada_aprobada.png` (SHA-256 `083264e6997024c5c9837a17ea08af102f1503116dd5cb181abb24881f5e25b4`). No se modifica ni se recorta.
 - **Transparencia:** se mantiene la corrección de `UpdateLayeredWindow` de 0.10.1 que el usuario confirmó que ya funciona.
-- **Programa:** se conserva la ventana flotante y se puede alternar entre sentada y horizontal. No se mezclan otras poses que todavía requieren revisión.
+- **Programa:** se conserva la ventana flotante y se puede alternar manualmente entre sentada, horizontal y acurrucada. No se mezclan otras poses que todavía requieren revisión.
 - **Permanencia:** el ejecutable conserva el nombre `EvaDock.exe`. La copia instalada en `%LOCALAPPDATA%\EvaDock\EvaDock.exe` busca nuevas versiones en [GitHub Releases](https://github.com/youteachtk/EvaDock/releases) sin que sea necesario descargar manualmente un nuevo instalador por versión.
 
 ## Decisiones y materiales de referencia
@@ -18,8 +19,8 @@ Las imágenes de trabajo adicionales `recostada.png` y `dormida.png` están cons
 
 ## Funcionamiento y limitaciones
 
-La versión 0.10.3 incluye la imagen sentada y la pose horizontal aprobada. Los movimientos de la cola y las otras posiciones se preparan en la rama 0.11 y dependen de validación visual. La copia instalada comprueba nuevas versiones unos segundos después de abrirse y aproximadamente cada ocho horas; una actualización publicada se descarga, verifica mediante SHA-256 y sustituye automáticamente el ejecutable instalado.
+La versión 0.10.4 incluye tres imágenes independientes aprobadas: sentada, acurrucada y horizontal. Los movimientos de la cola y las otras posiciones se preparan en la rama 0.11 y dependen de validación visual. La copia instalada comprueba nuevas versiones unos segundos después de abrirse y aproximadamente cada ocho horas; una actualización publicada se descarga, verifica mediante SHA-256 y sustituye automáticamente el ejecutable instalado.
 
 La compilación se genera automáticamente en GitHub Actions para Windows 64 bits con:
 
-`GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -tags eva_assets -ldflags="-H=windowsgui -s -w -X main.version=0.10.3" -o EvaDock.exe .`
+`GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -tags eva_assets -ldflags="-H=windowsgui -s -w -X main.version=0.10.4" -o EvaDock.exe .`

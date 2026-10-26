@@ -19,6 +19,7 @@ Actualizado: 2026-10-25. Se conservan los cambios y antecedentes en GitHub; cons
 - La otra propuesta `Gato atigrado con cola fina.png` también se recuperó, pero no es la alternativa elegida. No cambiar las imágenes aprobadas sin indicación expresa.
 - Las imágenes independientes `recostada.png` (objeto Git `3dfa4ea4ac6e3bf882001dd7754c994842f66aeb`) y `dormida.png` (objeto Git `0769cdb7917bcdd819f59ad4799b7b5ff77723e9`) están en la rama `eva-poses-independientes-v011`. **No dar por aprobadas todas las poses ni publicarlas sin validación.**
 - **APROBADA — pose horizontal**: `Eva, gata calicó en pose horizontal.png`, generada tras pedir rotar el cuerpo completo hasta dejarlo horizontal **sin voltear la cabeza**. El archivo se recuperó y comparó byte por byte: PNG RGBA 1536×1024, SHA-256 `72391725920009d6234574fbbbcde9a37fc38fb79b4cbd6d03af51a5a503d044`; objeto Git `521f49bf43c67320773ba488883cf7e81d102115`. Integrado en `assets/independientes/pose_horizontal_aprobada.png` para la versión 0.10.3. No recortar, regenerar, estirar ni girar la cabeza.
+- **APROBADA — pose acurrucada**: `Eva, gata calicó acurrucada.png`, solicitada como la primera de las dos poses compartidas antes de corregir la orientación de la segunda. PNG RGBA 1677×938; SHA-256 `083264e6997024c5c9837a17ea08af102f1503116dd5cb181abb24881f5e25b4`; archivo `assets/independientes/pose_acurrucada_aprobada.png` para la versión 0.10.4. Mantener el PNG individual sin cambios.
 
 ## Poses y movimientos
 
