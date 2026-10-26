@@ -45,6 +45,14 @@ No convertir estos materiales en archivos oficiales por el mero hecho de encontr
 - La versión publicada 0.10.5 incluye código para alternar tres poses y deformación mínima. La copia local posterior examinada deshabilita comportamientos automáticos rechazados, pero sus archivos no estaban sincronizados con GitHub main. No sobrescribir cambios sin conciliación.
 - Varias veces el usuario pidió que se mostraran todas las imágenes/acciones para aprobación antes de subirlas o integrarlas. **Cualquier «aprobado» requiere confirmación explícita y referida al recurso concreto.**
 
+
+## 26-10-2026 — exploración adicional, sin aprobación ni publicación
+
+- Se intentó **animación fotográfica por poses nuevas**: dos fotogramas RGBA separados de Eva sentada con cabeza girada aproximadamente 12° y 21° respecto a la pose sentada aprobada. No se reutilizó el antiguo efecto de respiración, y no se modificaron los PNG aprobados del repositorio.
+- Para evaluar continuidad se montó temporalmente `preview-head-turn.mp4` mediante interpolación óptica de fotogramas (FFmpeg). La inspección de un fotograma intermedio mostró **difuminación/doble rasgo cerca de los ojos y deriva de pelaje**. **Resultado técnico insuficiente; NO aprobado por el usuario, NO integrado a EvaDock, NO publicado.** La prueba permanece sólo en espacio de trabajo efímero, no como material oficial.
+- Se comprobó que el video original de Eva `20241123_003538.mp4`, citado en el historial, **no está disponible** ni en el espacio de trabajo actual ni en la búsqueda de archivos recuperables. No afirmar que puede usarse hasta tener los bytes verificables. Usar video REAL del animal y extraer sus cuadros con máscara alfa es una vía técnicamente superior a simular respiración de una sola foto, pero necesita el video fuente.
+- Se investigó **Runway Gen-4.5 Image-to-Video** como vía alternativa de video real con movimiento completo a partir de la pose aprobada: documentación oficial https://help.runwayml.com/hc/en-us/articles/46974685288467-Creating-with-Gen-4-5. A fecha de consulta requiere plan Standard o superior y consume 12 créditos/segundo, equivalente a 60 créditos para 5 segundos. **Sólo investigado; NO se abrió sesión, NO se subieron recursos, NO se gastaron créditos, NO autorizado todavía.** Su fidelidad al patrón de Eva todavía no está probada. También requiere posterior extracción de fondo para escritorio transparente.
+
 ## Regla de prevención
 
 Al recibir «¿qué sigue?» o «continúa», leer [ESTADO_ACTUAL.md](ESTADO_ACTUAL.md) y este historial, verificar GitHub, identificar el último recurso **aprobado** y la última prueba **rechazada**. Nunca iniciar otra iteración de los métodos anteriores ni volver a preguntar por requisitos o archivos ya recuperables. Las futuras pruebas se agregan aquí, con fecha, herramienta, insumos, resultado, ubicación y decisión.
