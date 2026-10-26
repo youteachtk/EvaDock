@@ -5,11 +5,8 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"image"
-	"image/draw"
-	"image/png"
 	"math"
 	"os"
 	"path/filepath"
@@ -18,6 +15,7 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/youteachtk/EvaDock/internal/posecatalog"
 	"github.com/youteachtk/EvaDock/internal/win32alpha"
 )
 
@@ -200,20 +198,14 @@ func logErr(s string) {
 func n32(x int32) uintptr { return uintptr(int64(x)) }
 func posByCursor() point  { p := point{}; pGetCursor.Call(uintptr(unsafe.Pointer(&p))); return p }
 func decode() error {
-	// Este recurso procede de una imagen independiente que fue aprobada antes,
-	// NO se corta de la hoja de seis poses. Los PNG antiguos nunca se sobrescriben.
-	data, err := bundledAsset("independientes/sentada.png")
-	if err != nil || len(data) == 0 {
-		return fmt.Errorf("Imagen independiente de Eva no incluida: %v", err)
-	}
-	img, err := png.Decode(bytes.NewReader(data))
+	approved, err := posecatalog.Load(bundledAsset)
 	if err != nil {
 		return err
 	}
-	bounds := img.Bounds()
-	n := image.NewNRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))
-	draw.Draw(n, n.Bounds(), img, bounds.Min, draw.Src)
-	poseList = []pose{{"Sentada (imagen independiente)", "independientes/sentada.png", n}}
+	poseList = make([]pose, len(approved))
+	for i, item := range approved {
+		poseList[i] = pose{item.Name, item.File, item.Image}
+	}
 	return nil
 }
 
@@ -238,10 +230,10 @@ func setupPanel() {
 	showButton = child("BUTTON", "Ocultar a Eva", 16, 80, 171, 34, idShow)
 	child("BUTTON", "Mostrar JUNTO al panel", 196, 80, 171, 34, idNext)
 	child("BUTTON", "Eva sentada", 16, 122, 171, 34, idSit)
-	child("BUTTON", "Traer Eva al frente", 196, 122, 171, 34, idBring)
+	child("BUTTON", "Eva horizontal", 196, 122, 171, 34, idLie)
 	child("BUTTON", "Tamano -", 16, 164, 171, 34, idSmaller)
 	child("BUTTON", "Tamano +", 196, 164, 171, 34, idBigger)
-	child("STATIC", "Otras poses: se sustituiran por imagenes independientes.", 16, 218, 365, 47, 0)
+	child("STATIC", "Dos poses independientes. La horizontal mantiene la cabeza de espaldas.", 16, 218, 365, 47, 0)
 	child("STATIC", "No se usaran los recortes de la hoja anterior.", 16, 263, 365, 30, 0)
 	child("BUTTON", "Cerrar Eva Dock", 16, 326, 351, 38, idExit)
 	child("STATIC", "VISTA PREVIA - imagen independiente", 405, 80, 325, 23, 0)
@@ -335,6 +327,8 @@ func act(id int) {
 		setStatus("Eva colocada a la vista, al frente")
 	case idSit:
 		changePose(0, "Eva sentada")
+	case idLie:
+		changePose(1, "Eva horizontal")
 	case idSmaller:
 		resizePet(-42)
 	case idBigger:

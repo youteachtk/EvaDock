@@ -20,6 +20,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
+      - name: Probar poses aprobadas e imagen con transparencia
+        run: go test ./internal/...
       - name: Compilar Windows con las imagen independiente de Eva
         run: |
           V=$(cat version.txt)
