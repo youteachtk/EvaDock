@@ -2,6 +2,17 @@
 
 Mascota independiente de Eva para el escritorio de Windows, con ventana flotante transparente y actualizaciones desde este repositorio.
 
+## Versión 0.10.5 — primeros movimientos y rutina automática
+
+- **Rutina tranquila activada al iniciar:** Eva alterna las tres poses aprobadas durante periodos de aproximadamente 60–120 segundos. No se desliza por el escritorio simulando caminar ni usa dibujos no aprobados.
+- **Respiración muy discreta:** las poses sentada y acurrucada tienen un movimiento de expansión inferior al 1 %, manteniendo el PNG original intacto.
+- **Cola de la pose horizontal:** movimiento local corto y ocasional, aproximadamente cada 40–65 segundos; el cuerpo, las patas y la cabeza permanecen quietos. El efecto se realiza al dibujar la imagen, sin cambiar el archivo aprobado.
+- **Interacción:** arrastrar a Eva la mueve libremente; un clic sin arrastrar equivale a una caricia y la despierta a la pose sentada. Clic derecho abre los controles. La selección manual de una pose pausa la rutina hasta reactivarla con el botón correspondiente.
+- **Escritorio despejado:** el panel de controles inicia oculto; Eva permanece como ventana transparente e independiente. Cerrar el panel sólo lo oculta y «Cerrar Eva Dock» finaliza el programa.
+- **Actualizador permanente:** se publica de nuevo como `EvaDock.exe` y mantiene la instalación en `%LOCALAPPDATA%\EvaDock\EvaDock.exe`, sin instaladores sucesivos.
+
+Esta versión **todavía no incorpora** parpadeo anatómico (requiere nuevas imágenes de referencia), conversación local ni recordatorios. Las poses y los movimientos anteriores están documentados a continuación.
+
 ## Versión 0.10.4 — tres poses aprobadas de Eva
 
 - **Imagen sentada:** se sustituyó el archivo antiguo de 0.10.0/0.10.1 (cola excesivamente esponjada, expresión y proporciones rechazadas) por la imagen individual elegida el 25 de octubre: `Eva, gata carey de pecho blanco.png`. Está integrada exactamente, sin recortes ni regeneración, como `assets/independientes/sentada.png`.

@@ -26,6 +26,8 @@ Actualizado: 2026-10-25. Se conservan los cambios y antecedentes en GitHub; cons
 - Mantener sólo **sentada**, **semiacostada/recostada** y **dormida** como posibilidades próximas.
 - Para la imagen semiacostada, con los ojos cerrados, mantener quietos cabeza, ojos y cuerpo; la cola debe moverse de manera breve y ocasional.
 - Se suspenden **de pie**, **caminando** y **saltando** hasta que se disponga de mejores fotografías. No tratar de compensar inventando anatomía o estrechando el cuerpo.
+- **Implementación 0.10.5:** autonomía de cambios de postura pausados (sentada → horizontal → acurrucada → horizontal), microrespiración en sentada/acurrucada y una deformación mínima, ocasional y localizada en la punta de la cola visible de la pose horizontal. No se alteran los PNG fuente. El clic sobre Eva equivale a una caricia y la devuelve a sentada. La selección manual pausa la autonomía; botón «Rutina» la reanuda. Se conserva la inmovilidad del cuerpo durante el descanso horizontal y se elimina el antiguo desplazamiento artificial de «caminar».
+- **Pendiente:** animación de parpadeo realista sin inventar rasgos, recordatorios y conversación local sin pagos, así como validación del aspecto del efecto de cola en el escritorio Windows. No presentar 0.10.5 como un clon funcionalmente completo de Furever Dock.
 
 ## Instalación y conservación
 

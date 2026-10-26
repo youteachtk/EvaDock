@@ -15,6 +15,8 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/youteachtk/EvaDock/internal/behavior"
+	"github.com/youteachtk/EvaDock/internal/idleframe"
 	"github.com/youteachtk/EvaDock/internal/posecatalog"
 	"github.com/youteachtk/EvaDock/internal/win32alpha"
 )
@@ -171,15 +173,18 @@ var (
 	petW                            = 340
 	petH                            = 310
 	visible                         = true
-	automatic                       = false
+	automatic                       = true
 	petFallback                     = false
 	dragging                        bool
 	downPt                          point
 	downX, downY                    int32
 	dragged                         bool
 	actionCount                     int
-	lastAuto                        = time.Now()
-	lastWalk                        = time.Now()
+	brain                           *behavior.Controller
+	animationStart                  = time.Now()
+	nextTailTwitch                  time.Time
+	tailTwitchStart                 time.Time
+	autoButton                      uintptr
 	logFile                         string
 	instance                        uintptr
 )
@@ -206,7 +211,20 @@ func decode() error {
 	for i, item := range approved {
 		poseList[i] = pose{item.Name, item.File, item.Image}
 	}
+	brain = behavior.New(time.Now())
+	active = int(brain.Pose())
+	automatic = brain.Autonomous()
+	resetTail(time.Now())
 	return nil
+}
+
+func resetTail(now time.Time) {
+	tailTwitchStart = time.Time{}
+	nextTailTwitch = now.Add(45 * time.Second)
+}
+
+func tailIsMoving(now time.Time) bool {
+	return !tailTwitchStart.IsZero() && now.Sub(tailTwitchStart) < 1600*time.Millisecond
 }
 
 func class(name string, proc uintptr, style uint32) error {
@@ -234,11 +252,12 @@ func setupPanel() {
 	child("BUTTON", "Eva acurrucada", 16, 164, 171, 34, idSleep)
 	child("BUTTON", "Tamano -", 196, 164, 171, 34, idSmaller)
 	child("BUTTON", "Tamano +", 16, 206, 171, 34, idBigger)
-	child("STATIC", "Tres poses independientes aprobadas, sin recortes de una hoja.", 16, 254, 365, 47, 0)
+	autoButton = child("BUTTON", "Rutina: ACTIVADA", 196, 206, 171, 34, idAuto)
+	child("STATIC", "Eva cambia de postura cuando descansa. Sin caminar ni saltar.", 16, 254, 365, 47, 0)
 	child("BUTTON", "Cerrar Eva Dock", 16, 326, 351, 38, idExit)
 	child("STATIC", "VISTA PREVIA - imagen independiente", 405, 80, 325, 23, 0)
 	statusH = child("STATIC", "Estado: iniciando...", 16, 385, 711, 55, 0)
-	child("STATIC", "Arrastra a Eva para moverla. Tambien puedes usar Traer Eva al frente.", 16, 446, 707, 20, 0)
+	child("STATIC", "Arrastra a Eva. Clic: acariciarla. Clic derecho: abrir controles.", 16, 446, 707, 20, 0)
 }
 
 func setStatus(action string) {
@@ -260,10 +279,24 @@ func changePose(to int, action string) {
 		return
 	}
 	active = to
-	lastAuto = time.Now()
+	brain.Select(behavior.Pose(to), time.Now())
+	automatic = brain.Autonomous()
+	refreshAutoButton()
+	animationStart = time.Now()
+	resetTail(time.Now())
 	drawPet()
 	repaintPreview()
 	setStatus(action)
+}
+func refreshAutoButton() {
+	if autoButton == 0 {
+		return
+	}
+	label := "Rutina: PAUSADA"
+	if automatic {
+		label = "Rutina: ACTIVADA"
+	}
+	pSetText.Call(autoButton, ptr(label))
 }
 func movePet(x, y int32) {
 	petX = x
@@ -331,6 +364,11 @@ func act(id int) {
 		changePose(2, "Eva horizontal")
 	case idSleep:
 		changePose(1, "Eva acurrucada")
+	case idAuto:
+		brain.EnableAutonomy(time.Now(), !brain.Autonomous())
+		automatic = brain.Autonomous()
+		refreshAutoButton()
+		setStatus("Rutina autonoma actualizada")
 	case idSmaller:
 		resizePet(-42)
 	case idBigger:
@@ -426,6 +464,23 @@ func composeCanvas(width, height int, im *image.NRGBA, transparent bool) []byte 
 	}
 	return out
 }
+func petFrame(transparent bool) []byte {
+	buf := composeCanvas(petW, petH, poseList[active].img, transparent)
+	if brain == nil || dragging {
+		return buf
+	}
+	if brain.Breathes() {
+		seconds := time.Since(animationStart).Seconds()
+		fraction := 0.5 + 0.5*math.Sin(seconds*2*math.Pi/3.8)
+		return idleframe.Pulse(buf, petW, petH, 0.009*fraction)
+	}
+	if brain.Pose() == behavior.Horizontal && tailIsMoving(time.Now()) {
+		progress := time.Since(tailTwitchStart).Seconds() / 1.6
+		return idleframe.TailTwitch(buf, petW, petH, progress)
+	}
+	return buf
+}
+
 func drawPet() bool {
 	if pet == 0 || len(poseList) == 0 {
 		return false
@@ -434,7 +489,7 @@ func drawPet() bool {
 		pInvalidate.Call(pet, 0, 1)
 		return true
 	}
-	buf := composeCanvas(petW, petH, poseList[active].img, true)
+	buf := petFrame(true)
 	info := bitmapInfo{H: bitmapHeader{Size: 40, Width: int32(petW), Height: -int32(petH), Planes: 1, BitCount: 32}}
 	screenDC, _, _ := pGetDC.Call(0)
 	if screenDC == 0 {
@@ -483,7 +538,7 @@ func paintPetRegular(h uintptr) {
 	if len(poseList) == 0 {
 		return
 	}
-	buf := composeCanvas(petW, petH, poseList[active].img, false)
+	buf := petFrame(false)
 	info := bitmapInfo{H: bitmapHeader{Size: 40, Width: int32(petW), Height: -int32(petH), Planes: 1, BitCount: 32}}
 	pStretch.Call(hdc, 0, 0, uintptr(petW), uintptr(petH), 0, 0, uintptr(petW), uintptr(petH), uintptr(unsafe.Pointer(&buf[0])), uintptr(unsafe.Pointer(&info)), 0, srccopy)
 	runtime.KeepAlive(buf)
@@ -525,25 +580,38 @@ func panelProc(h uintptr, m uint32, w, l uintptr) uintptr {
 		paintPanel(h)
 		return 0
 	case wmTimer:
-		if w == 1 && automatic && len(poseList) > 0 {
-			if active == 2 && time.Since(lastWalk) > 80*time.Millisecond && visible {
-				sw, _, _ := pGetSystem.Call(0)
-				lastWalk = time.Now()
-				if petX+int32(petW) < int32(sw)-8 {
-					movePet(petX+2, petY)
-				} else {
-					movePet(20, petY)
+		if w == 1 && brain != nil && len(poseList) > 0 {
+			now := time.Now()
+			changed := brain.Step(now)
+			if changed {
+				active = int(brain.Pose())
+				animationStart = now
+				resetTail(now)
+				repaintPreview()
+				setStatus("Eva cambia de postura para descansar")
+			}
+			tailEnded := false
+			if brain.Pose() == behavior.Horizontal && visible && !dragging {
+				if tailTwitchStart.IsZero() && !now.Before(nextTailTwitch) {
+					tailTwitchStart = now
+				}
+				if !tailTwitchStart.IsZero() && !tailIsMoving(now) {
+					tailTwitchStart = time.Time{}
+					nextTailTwitch = now.Add(time.Duration(40+now.Unix()%25) * time.Second)
+					tailEnded = true
 				}
 			}
-			if time.Since(lastAuto) > 9*time.Second {
-				next := []int{0, 1, 2, 3, 4, 0, 2, 0}
-				ind := int(time.Now().Unix()/9) % len(next)
-				changePose(next[ind], "Rutina automatica")
+			if visible && !dragging && (brain.Breathes() || changed || tailIsMoving(now) || tailEnded) {
+				if petFallback {
+					pInvalidate.Call(pet, 0, 1)
+				} else {
+					drawPet()
+				}
 			}
 		}
 		return 0
 	case wmClose:
-		pDestroy.Call(h)
+		pShow.Call(h, swHide)
 		return 0
 	case wmDestroy:
 		if pet != 0 {
@@ -586,14 +654,26 @@ func petProc(h uintptr, m uint32, w, l uintptr) uintptr {
 			dragging = false
 			pReleaseCapture.Call()
 			if !dragged {
-				setStatus("Eva seleccionada")
+				brain.Touch(time.Now())
+				active = int(brain.Pose())
+				animationStart = time.Now()
+				resetTail(time.Now())
+				drawPet()
+				repaintPreview()
+				setStatus("Eva recibe una caricia")
 			}
 		}
 		return 0
 	case wmLDouble:
 		dragging = false
 		pReleaseCapture.Call()
-		setStatus("Eva seleccionada")
+		brain.Touch(time.Now())
+		active = int(brain.Pose())
+		animationStart = time.Now()
+		resetTail(time.Now())
+		drawPet()
+		repaintPreview()
+		setStatus("Eva recibe una caricia")
 		return 0
 	case wmWheel:
 		if int16((w>>16)&0xffff) > 0 {
@@ -634,7 +714,7 @@ func main1() error {
 	if err := class("EvaDockPetV08", syscall.NewCallback(petProc), csDblClicks); err != nil {
 		return err
 	}
-	panel, _, err = pCreate.Call(0, ptr("EvaDockPanelV08"), ptr("Eva Dock "+version+" - Controles"), wsOverlappedWindow|wsVisible, 65, 75, panelW, panelH, 0, 0, instance, 0)
+	panel, _, err = pCreate.Call(0, ptr("EvaDockPanelV08"), ptr("Eva Dock "+version+" - Controles"), wsOverlappedWindow, 65, 75, panelW, panelH, 0, 0, instance, 0)
 	if panel == 0 {
 		return fmt.Errorf("Crear panel: %v", err)
 	}
@@ -676,7 +756,7 @@ func main1() error {
 	pShow.Call(pet, swShow)
 	pSetPos.Call(pet, ^uintptr(0), n32(petX), n32(petY), uintptr(petW), uintptr(petH), swpNoActivate)
 
-	pShow.Call(panel, swShow)
+	pShow.Call(panel, swHide)
 	pSetTimer.Call(panel, 1, 150, 0)
 	repaintPreview()
 	go autoUpdateCheck()
