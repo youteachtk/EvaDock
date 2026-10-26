@@ -1,5 +1,7 @@
 # EvaDock
 
+> ⚠️ **Estado real al 26 de octubre de 2026:** la última versión publicada es **0.10.5**, pero sus efectos de respiración, cola y deformación de PNG **fueron rechazados por el usuario**. No existe aún una animación realista aprobada que cumpla el objetivo FureverDock. La sección histórica de 0.10.5 describe lo publicado, **no lo aprobado**. Antes de editar o publicar, consultar [Estado actual](docs/ESTADO_ACTUAL.md), [Historial de animaciones y pruebas fallidas](docs/HISTORIAL_ANIMACIONES.md), [Decisiones permanentes](docs/DECISIONES_EVA.md) e [Instrucciones de continuidad](AGENTS.md).
+
 Mascota independiente de Eva para el escritorio de Windows, con ventana flotante transparente y actualizaciones desde este repositorio.
 
 ## Versión 0.10.5 — primeros movimientos y rutina automática
