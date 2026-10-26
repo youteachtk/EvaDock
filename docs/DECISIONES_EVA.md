@@ -1,6 +1,6 @@
 # EvaDock — decisiones permanentes sobre Eva
 
-Actualizado: 2026-10-25. Se conservan los cambios y antecedentes en GitHub; consultar este documento y el historial antes de pedir material otra vez.
+Actualizado: 2026-10-26. Se conservan los cambios y antecedentes en GitHub; consultar este documento y el historial antes de pedir material otra vez.
 
 ## Referencias y apariencia real
 
@@ -26,6 +26,7 @@ Actualizado: 2026-10-25. Se conservan los cambios y antecedentes en GitHub; cons
 - Mantener sólo **sentada**, **semiacostada/recostada** y **dormida** como posibilidades próximas.
 - Para la imagen semiacostada, con los ojos cerrados, mantener quietos cabeza, ojos y cuerpo; la cola debe moverse de manera breve y ocasional.
 - Se suspenden **de pie**, **caminando** y **saltando** hasta que se disponga de mejores fotografías. No tratar de compensar inventando anatomía o estrechando el cuerpo.
+- **ESTADO VERIFICADO EL 26-10-2026 — NO APROBADO:** la implementación técnica 0.10.5 se publicó, pero el usuario **rechazó** los efectos de respiración, cola, deformación de PNG y el movimiento artificial de una imagen estática. **Ninguna secuencia de animación está aprobada todavía.** El requisito sigue siendo movimiento anatómico y realista de la gata, comparable a la experiencia FureverDock. Ver [ESTADO_ACTUAL.md](ESTADO_ACTUAL.md) e [HISTORIAL_ANIMACIONES.md](HISTORIAL_ANIMACIONES.md) antes de retomar cualquier prueba.
 - **Implementación 0.10.5:** autonomía de cambios de postura pausados (sentada → horizontal → acurrucada → horizontal), microrespiración en sentada/acurrucada y una deformación mínima, ocasional y localizada en la punta de la cola visible de la pose horizontal. No se alteran los PNG fuente. El clic sobre Eva equivale a una caricia y la devuelve a sentada. La selección manual pausa la autonomía; botón «Rutina» la reanuda. Se conserva la inmovilidad del cuerpo durante el descanso horizontal y se elimina el antiguo desplazamiento artificial de «caminar».
 - **Pendiente:** animación de parpadeo realista sin inventar rasgos, recordatorios y conversación local sin pagos, así como validación del aspecto del efecto de cola en el escritorio Windows. No presentar 0.10.5 como un clon funcionalmente completo de Furever Dock.
 
