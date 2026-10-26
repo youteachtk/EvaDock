@@ -1,0 +1,31 @@
+name: EvaDock - Restaurar PNG aprobado
+on:
+  push:
+    branches: [eva-poses-independientes-v011]
+    paths:
+      - 'assets/.incoming/horizontal/**'
+      - '.github/workflows/restore-approved-png.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restaurar bytes PNG originales
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat assets/.incoming/horizontal/part-*.bin > assets/independientes/pose_horizontal_aprobada.png
+          printf '%s  %s\n' '72391725920009d6234574fbbbcde9a37fc38fb79b4cbd6d03af51a5a503d044' 'assets/independientes/pose_horizontal_aprobada.png' | sha256sum --check -
+      - name: Conservar PNG en GitHub y quitar partes temporales
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/independientes/pose_horizontal_aprobada.png
+          git rm assets/.incoming/horizontal/part-*.bin
+          git commit -m 'Preservar PNG horizontal aprobado de Eva sin modificaciones'
+          git push origin HEAD:eva-poses-independientes-v011
