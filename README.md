@@ -1,8 +1,16 @@
 # EvaDock
 
-> ⚠️ **Estado real al 26 de octubre de 2026:** la última versión publicada es **0.10.5**, pero sus efectos de respiración, cola y deformación de PNG **fueron rechazados por el usuario**. No existe aún una animación realista aprobada que cumpla el objetivo FureverDock. La sección histórica de 0.10.5 describe lo publicado, **no lo aprobado**. Antes de editar o publicar, consultar [Estado actual](docs/ESTADO_ACTUAL.md), [Historial de animaciones y pruebas fallidas](docs/HISTORIAL_ANIMACIONES.md), [Decisiones permanentes](docs/DECISIONES_EVA.md) e [Instrucciones de continuidad](AGENTS.md).
+> ⚠️ **Estado real al 27 de octubre de 2026:** la versión **0.10.6** corrige la permanencia de la ventana de Eva en primer plano; **no modifica ni aprueba las animaciones** de 0.10.5. Sus efectos de respiración, cola y deformación de PNG **fueron rechazados por el usuario**. No existe aún una animación realista aprobada que cumpla el objetivo FureverDock. La sección histórica de 0.10.5 describe lo publicado, **no lo aprobado**. Antes de editar o publicar, consultar [Estado actual](docs/ESTADO_ACTUAL.md), [Historial de animaciones y pruebas fallidas](docs/HISTORIAL_ANIMACIONES.md), [Decisiones permanentes](docs/DECISIONES_EVA.md) e [Instrucciones de continuidad](AGENTS.md).
 
 Mascota independiente de Eva para el escritorio de Windows, con ventana flotante transparente y actualizaciones desde este repositorio.
+
+## Versión 0.10.6 — Eva encima de las demás ventanas
+
+- Cada 2 segundos, mientras Eva esté visible, se vuelve a aplicar `HWND_TOPMOST` mediante `SetWindowPos` **sin activar ni quitar el foco** a la aplicación en uso. También se hace al arrancar y al volver a mostrar a Eva.
+- El mensaje de cerrar la ventana flotante abre los controles en lugar de ocultar a Eva y dejar la aplicación inaccesible.
+- Si se ocultó a Eva manualmente desde los controles y luego se cierra el panel, Eva reaparece: no queda un proceso sin ventana recuperable.
+- Mantiene instalador único, actualizaciones GitHub y **los mismos PNG, poses y efectos previos sin alterarlos**. Las animaciones continúan pendientes de revisión y aprobación.
+- El comportamiento debe comprobarse en Windows con otras aplicaciones abiertas. Una aplicación en modo **pantalla completa exclusiva** puede quedar por delante de las ventanas topmost; no es posible prometer superposición sobre ella.
 
 ## Versión 0.10.5 — primeros movimientos y rutina automática
 

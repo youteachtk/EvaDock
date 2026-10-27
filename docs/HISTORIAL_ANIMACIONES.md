@@ -1,6 +1,6 @@
 # EvaDock — historial de intentos y decisiones sobre animación
 
-Corte: 26 de octubre de 2026. Este registro distingue lo que efectivamente se produjo, lo que sólo se investigó y lo que fue aprobado o rechazado. **Cero secuencias de animación aceptadas a esta fecha.**
+Corte: 27 de octubre de 2026. Este registro distingue lo que efectivamente se produjo, lo que sólo se investigó y lo que fue aprobado o rechazado. **Cero secuencias de animación aceptadas a esta fecha.**
 
 ## Línea temporal recuperada
 
@@ -51,7 +51,13 @@ No convertir estos materiales en archivos oficiales por el mero hecho de encontr
 - Se intentó **animación fotográfica por poses nuevas**: dos fotogramas RGBA separados de Eva sentada con cabeza girada aproximadamente 12° y 21° respecto a la pose sentada aprobada. No se reutilizó el antiguo efecto de respiración, y no se modificaron los PNG aprobados del repositorio.
 - Para evaluar continuidad se montó temporalmente `preview-head-turn.mp4` mediante interpolación óptica de fotogramas (FFmpeg). La inspección de un fotograma intermedio mostró **difuminación/doble rasgo cerca de los ojos y deriva de pelaje**. **Resultado técnico insuficiente; NO aprobado por el usuario, NO integrado a EvaDock, NO publicado.** La prueba permanece sólo en espacio de trabajo efímero, no como material oficial.
 - Se comprobó que el video original de Eva `20241123_003538.mp4`, citado en el historial, **no está disponible** ni en el espacio de trabajo actual ni en la búsqueda de archivos recuperables. No afirmar que puede usarse hasta tener los bytes verificables. Usar video REAL del animal y extraer sus cuadros con máscara alfa es una vía técnicamente superior a simular respiración de una sola foto, pero necesita el video fuente.
-- Se investigó **Runway Gen-4.5 Image-to-Video** como vía alternativa de video real con movimiento completo a partir de la pose aprobada: documentación oficial https://help.runwayml.com/hc/en-us/articles/46974685288467-Creating-with-Gen-4-5. A fecha de consulta requiere plan Standard o superior y consume 12 créditos/segundo, equivalente a 60 créditos para 5 segundos. **Sólo investigado; NO se abrió sesión, NO se subieron recursos, NO se gastaron créditos, NO autorizado todavía.** Su fidelidad al patrón de Eva todavía no está probada. También requiere posterior extracción de fondo para escritorio transparente.
+- Se investigó **Runway Gen-4.5 Image-to-Video** como vía alternativa de video real con movimiento completo a partir de la pose aprobada: documentación oficial https://help.runwayml.com/hc/en-us/articles/46974685288467-Creating-with-Gen-4-5. En una continuación se llegó a la pantalla de autenticación, pero **no hay cuenta Runway** para iniciar sesión; no se creó cuenta, no se subieron recursos y no se gastaron créditos. Queda descartado por ahora y no debe intentarse de nuevo sin cambio explícito de circunstancias.
+
+## 27-10-2026 — mantenimiento de aplicación, sin cambios animados
+
+- Prioridad expresa: Eva debe mantenerse visible por encima de otras ventanas en Windows; actualizar el programa actual y dejar las futuras animaciones para después.
+- Versión objetivo: `0.10.6`, recuperación periódica de `HWND_TOPMOST` sin robar el foco, corrección de rutas de cierre que podían dejar la mascota oculta y el panel inaccesible.
+- **Ninguna imagen fuente o movimiento fue editado o aprobado por esta intervención.** Las pruebas de animación rechazadas se mantienen registradas y pendientes de nueva solución realista.
 
 ## Regla de prevención
 

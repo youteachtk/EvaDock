@@ -19,6 +19,7 @@ import (
 	"github.com/youteachtk/EvaDock/internal/idleframe"
 	"github.com/youteachtk/EvaDock/internal/posecatalog"
 	"github.com/youteachtk/EvaDock/internal/win32alpha"
+	"github.com/youteachtk/EvaDock/internal/windowvisibility"
 )
 
 const (
@@ -45,10 +46,13 @@ const (
 	ssLeft             = 0x00000000
 	csDblClicks        = 0x0008
 	swShow             = 5
+	swShowNA           = 8
 	swHide             = 0
 	swpNoSize          = 0x0001
+	swpNoMove          = 0x0002
 	swpNoZOrder        = 0x0004
 	swpNoActivate      = 0x0010
+	swpShowWindow      = 0x0040
 	dibRGBColors       = 0
 	ulwAlpha           = 2
 	srccopy            = 0x00CC0020
@@ -173,6 +177,7 @@ var (
 	petW                            = 340
 	petH                            = 310
 	visible                         = true
+	lastTopmostCheck                time.Time
 	automatic                       = true
 	petFallback                     = false
 	dragging                        bool
@@ -321,11 +326,26 @@ func resizePet(delta int) {
 	}
 	setStatus(fmt.Sprintf("Tamano %d px", petW))
 }
+func keepPetOnTop(now time.Time) {
+	if pet == 0 || !windowvisibility.ShouldReassertTopmost(visible, lastTopmostCheck, now) {
+		return
+	}
+	lastTopmostCheck = now
+	// SW_SHOWNA and SWP_NOACTIVATE preserve the foreground application.
+	// Reassert HWND_TOPMOST because other windows can displace Eva in the Z-order.
+	pShow.Call(pet, swShowNA)
+	ok, _, err := pSetPos.Call(pet, ^uintptr(0), 0, 0, 0, 0,
+		swpNoMove|swpNoSize|swpNoActivate|swpShowWindow)
+	if ok == 0 {
+		logErr(fmt.Sprintf("No se pudo mantener Eva al frente: %v", err))
+	}
+}
 func showPet(v bool) {
 	visible = v
 	if pet != 0 {
 		if visible {
-			pShow.Call(pet, swShow)
+			lastTopmostCheck = time.Time{}
+			keepPetOnTop(time.Now())
 			drawPet()
 		} else {
 			pShow.Call(pet, swHide)
@@ -580,6 +600,9 @@ func panelProc(h uintptr, m uint32, w, l uintptr) uintptr {
 		paintPanel(h)
 		return 0
 	case wmTimer:
+		if w == 1 {
+			keepPetOnTop(time.Now())
+		}
 		if w == 1 && brain != nil && len(poseList) > 0 {
 			now := time.Now()
 			changed := brain.Step(now)
@@ -611,6 +634,10 @@ func panelProc(h uintptr, m uint32, w, l uintptr) uintptr {
 		}
 		return 0
 	case wmClose:
+		// Do not leave the process completely inaccessible after hiding Eva.
+		if !visible {
+			showPet(true)
+		}
 		pShow.Call(h, swHide)
 		return 0
 	case wmDestroy:
@@ -689,7 +716,13 @@ func petProc(h uintptr, m uint32, w, l uintptr) uintptr {
 		}
 		return 0
 	case wmClose:
-		showPet(false)
+		// Closing the floating window should open the controls, not orphan
+		// an invisible pet with a hidden control panel.
+		if panel != 0 {
+			pShow.Call(panel, swShow)
+			pForeground.Call(panel)
+		}
+		keepPetOnTop(time.Now())
 		return 0
 	case wmDestroy:
 		pet = 0
@@ -755,6 +788,7 @@ func main1() error {
 	}
 	pShow.Call(pet, swShow)
 	pSetPos.Call(pet, ^uintptr(0), n32(petX), n32(petY), uintptr(petW), uintptr(petH), swpNoActivate)
+	keepPetOnTop(time.Now())
 
 	pShow.Call(panel, swHide)
 	pSetTimer.Call(panel, 1, 150, 0)

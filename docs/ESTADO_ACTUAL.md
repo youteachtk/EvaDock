@@ -1,6 +1,6 @@
 # EvaDock — estado real y continuidad
 
-**Corte:** 26 de octubre de 2026. Este documento se actualiza en cada intervención. Leer también [Historial de animaciones](HISTORIAL_ANIMACIONES.md), [Decisiones de Eva](DECISIONES_EVA.md) y [AGENTS.md](../AGENTS.md).
+**Corte:** 27 de octubre de 2026. Este documento se actualiza en cada intervención. Leer también [Historial de animaciones](HISTORIAL_ANIMACIONES.md), [Decisiones de Eva](DECISIONES_EVA.md) y [AGENTS.md](../AGENTS.md).
 
 ## Objetivo que NO debe reinterpretarse
 
@@ -9,6 +9,14 @@ Replicar para Eva la **experiencia de una mascota de escritorio realista y anima
 El usuario quiere resultados visibles y comprobables. Investigar es responsabilidad del asistente; sólo se consulta al usuario si se requiere autorización para IMPLEMENTAR o USAR un servicio/herramienta, enviar recursos a terceros, instalar software o gastar créditos. No subir ni integrar recursos antes de supervisión cuando ésta fue solicitada.
 
 ## Estado técnico verificado en GitHub
+
+### Intervención del 27-10-2026 — visibilidad prioritaria
+
+- El usuario solicitó **corregir de inmediato la aplicación actual** para que Eva permanezca encima de las demás ventanas y continuar las animaciones después. No modificar poses, recursos ni efectos rechazados en este cambio.
+- Diagnóstico sobre `main.go` de v0.10.5: ya existía `WS_EX_TOPMOST` y una llamada inicial a `SetWindowPos(HWND_TOPMOST)`, pero no se renovaba la prioridad después; `petProc/WM_CLOSE` ejecutaba `showPet(false)` mientras el panel de controles permanecía oculto, dejando a Eva inaccesible. También se podía ocultar a Eva manualmente y cerrar el único panel recuperador.
+- Corrección propuesta para 0.10.6: recuperar `HWND_TOPMOST` cada 2 segundos, sin tomar el foco; reactivar al mostrar/arrancar; al cerrar Eva abrir controles en vez de esconderla; no permitir cerrar el panel si la mascota está oculta sin antes recuperarla. Pruebas puras de política de visibilidad en `internal/windowvisibility/`.
+- Confirmar en GitHub Actions que compila el EXE y existe release, y **verificar en Windows** la permanencia real por encima de otras ventanas, actualización automática y transparencia. No afirmar prueba real en Windows mientras no ocurra.
+- No existe cuenta Runway disponible para iniciar sesión. La exploración web de autenticación no creó cuenta, no subió fotos ni generó clips; **suspender Runway** hasta autorización y cuenta real. CreativeClaw agotado, Kling inservible según prueba previa, HeyGen prohibido.
 
 - Repositorio oficial: https://github.com/youteachtk/EvaDock (público).
 - Rama de producción: main. Rama histórica de poses: eva-poses-independientes-v011. Consultar GitHub antes de suponer que existe otra rama.
@@ -38,6 +46,7 @@ Características de Eva: gata calicó/carey de cuerpo bajo y robusto, pecho y pa
 - CreativeClaw **está agotado**. No volver a ofrecerlo mientras el usuario no confirme nuevos créditos y autorice su uso.
 - HeyGen **prohibido** en este proyecto. No usarlo.
 - Investigar Blender/rigging, Runway o Luma NO equivale a autorización para instalar, suscribirse, gastar créditos o subir una imagen. Su utilidad para mantener la identidad de Eva NO está validada.
+- **Runway no dispone de cuenta** para este proyecto: no volver a intentar iniciar sesión como si existiera. No utilizarlo para animaciones por ahora.
 - La página independiente de revisión de respiración fue una prueba, NO parte de EvaDock ni una aprobación. No imponer descargas de APNG/ZIP/EXE para evaluar una animación.
 
 ## Interfaz y funcionamiento que se conservan
@@ -49,6 +58,8 @@ Características de Eva: gata calicó/carey de cuerpo bajo y robusto, pecho y pa
 - Descanso horizontal: no girar cabeza para mostrar cara a cámara. Si se emplea una cola ocasional u otra acción, requerirá revisión de movimiento real.
 
 ## Próximo trabajo — orden de ejecución
+
+**Primero cerrar y comprobar el arreglo de visibilidad de 0.10.6. Después retomar las animaciones.**
 
 1. **No generar más deformaciones de PNG.** Tomar como referencia el material aprobado y la calidad de acciones reales de FureverDock. Analizar antes qué pipeline puede entregar un personaje que realmente actúe, con identidad consistente.
 2. Identificar una vía viable para obtener animaciones articuladas/secuencias visuales nuevas sin CreativeClaw, HeyGen ni Kling. Comparar factibilidad, calidad y costes SIN suscripciones, instalaciones o cargas externas no autorizadas.
