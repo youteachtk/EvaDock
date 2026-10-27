@@ -56,7 +56,7 @@ No convertir estos materiales en archivos oficiales por el mero hecho de encontr
 ## 27-10-2026 — mantenimiento de aplicación, sin cambios animados
 
 - Prioridad expresa: Eva debe mantenerse visible por encima de otras ventanas en Windows; actualizar el programa actual y dejar las futuras animaciones para después.
-- Versión objetivo: `0.10.6`, recuperación periódica de `HWND_TOPMOST` sin robar el foco, corrección de rutas de cierre que podían dejar la mascota oculta y el panel inaccesible.
+- Versión **publicada y compilada con éxito en GitHub Actions**: [`0.10.6`](https://github.com/youteachtk/EvaDock/releases/tag/eva-dock-v0.10.6), recuperación periódica de `HWND_TOPMOST` sin robar el foco, corrección de rutas de cierre que podían dejar la mascota oculta y el panel inaccesible. Pendiente confirmar en el Windows del usuario.
 - **Ninguna imagen fuente o movimiento fue editado o aprobado por esta intervención.** Las pruebas de animación rechazadas se mantienen registradas y pendientes de nueva solución realista.
 
 ## Regla de prevención
