@@ -57,6 +57,14 @@ Características de Eva: gata calicó/carey de cuerpo bajo y robusto, pecho y pa
 - No inventar caminar, saltar, estar de pie ni una quinta pata para llenar una animación.
 - Descanso horizontal: no girar cabeza para mostrar cara a cámara. Si se emplea una cola ocasional u otra acción, requerirá revisión de movimiento real.
 
+### Hallazgos del 27-10-2026 — búsqueda de movimiento realista y GRATIS
+
+- **Viable con código publicado:** 3D-Fauna genera mallas de animales articuladas y texturizadas a partir de foto; SMALify ofrece reconstrucción cuadrúpeda con familia felina; Mesh2Motion aplica rigs/movimientos a mallas. No se comprobó aún la fidelidad del pelaje de Eva ni si el ordenador tiene GPU adecuada; no instalar sin autorización.
+- **Ruta de máxima fidelidad:** separar de un video **real de Eva** los fotogramas con transparencia (SAM 2) e integrarlos como secuencias de acciones auténticas en EvaDock. El video fuente anterior no está disponible en este corte; no afirmar lo contrario.
+- **NO utilizables todavía:** AniGauss y Kirin publican investigación prometedora de animación 3D de animales, pero indican que su código no se ha liberado.
+- **Potentes pero condicionadas por hardware:** LTX Desktop y Wan2.2 gratuitos para ejecución local, con necesidades de VRAM/disco considerables; la nube gratuita (ZeroGPU, Colab) tiene límites y no garantiza ejecución.
+- No se realizó nueva generación, instalación, cuenta, gasto o carga externa. Análisis y fuentes comprobadas en [HISTORIAL_ANIMACIONES.md](HISTORIAL_ANIMACIONES.md). Mantener la línea del usuario: animación FureverDock realista, nunca simple deformación de PNG.
+
 ## Próximo trabajo — orden de ejecución
 
 **Primero cerrar y comprobar el arreglo de visibilidad de 0.10.6. Después retomar las animaciones.**
